@@ -6,7 +6,6 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
 import Link from "next/link";
-import { WEBSITE_REGISTER } from "@/routes/WebsiteRoute";
 import {
   Form,
   FormControl,
@@ -23,25 +22,35 @@ import { useState } from "react";
 
 import { FaRegEyeSlash } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
-const LoginPage = () => {
+import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
+
+const page = () => {
   const [loading, setLoading] = useState(false);
   const [isTypePassword, setIsTypePassword] = useState(true);
   const formSchema = zSchema
     .pick({
+      name: true,
       email: true,
+      password: true,
     })
     .extend({
-      password: z.string().min("3", "Password field is required."),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Password and confirm password must be same.",
+      path: ["confirmPassword"],
     });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
-  const handleLoginSubmit = async (values) => {
+  const handleRegisterSubmit = async (values) => {
     console.log(values);
   };
   return (
@@ -57,12 +66,28 @@ const LoginPage = () => {
           />
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Login Into Account</h1>
-          <p>Login into your account by filling out the form below.</p>
+          <h1 className="text-3xl font-bold">Create Account</h1>
+          <p>Create your account by filling out the form below.</p>
         </div>
         <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
+            <form onSubmit={form.handleSubmit(handleRegisterSubmit)}>
+              <div className="mb-3">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input type="text" placeholder="Akbar Ali" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="mb-3">
                 <FormField
                   control={form.control}
@@ -92,6 +117,26 @@ const LoginPage = () => {
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <Input
+                          type="password"
+                          placeholder="**************"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="mb-3">
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem className="relative">
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input
                           type={isTypePassword ? "password" : "text"}
                           placeholder="**************"
                           {...field}
@@ -113,21 +158,16 @@ const LoginPage = () => {
                 <ButtonLoading
                   loading={loading}
                   type="submit"
-                  text="Login"
+                  text="Create Account"
                   className="w-full
     cursor-pointer"
                 />
               </div>
               <div className="text-center">
                 <div className="flex justify-center items-center gap-1">
-                  <p>Don't have account?</p>
-                  <Link href={WEBSITE_REGISTER} className="text-primary underline">
-                    Create account!
-                  </Link>
-                </div>
-                <div className="mt-3">
-                  <Link href="" className="text-primary underline">
-                    Forgot password?
+                  <p>Already have account?</p>
+                  <Link href={WEBSITE_LOGIN} className="text-primary underline">
+                    Login
                   </Link>
                 </div>
               </div>
@@ -139,4 +179,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default page;
