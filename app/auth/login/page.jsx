@@ -5,6 +5,7 @@ import Logo from "@/public/assets/images/logo.png";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
+import Link from "next/link";
 import {
   Form,
   FormControl,
@@ -16,19 +17,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import ButtonLoading from "@/components/Application/ButtonLoading";
-import { z } from 'zod'
+import { z } from "zod";
 import { useState } from "react";
 
 import { FaRegEyeSlash } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
 const LoginPage = () => {
-    const [loading, setLoading] = useState(false)
-    const [isTypePassword, setIsTypePassword] = useState(true)
-  const formSchema = zSchema.pick({
-    email: true
-  }).extend({
-    password: z.string().min('3', 'Password field is required.')
-  })
+  const [loading, setLoading] = useState(false);
+  const [isTypePassword, setIsTypePassword] = useState(true);
+  const formSchema = zSchema
+    .pick({
+      email: true,
+    })
+    .extend({
+      password: z.string().min("3", "Password field is required."),
+    });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -38,7 +41,7 @@ const LoginPage = () => {
     },
   });
   const handleLoginSubmit = async (values) => {
-console.log(values);
+    console.log(values);
   };
   return (
     <Card className="w-[400px] bg-fuchsia-300">
@@ -81,35 +84,51 @@ console.log(values);
               </div>
               <div className="mb-3">
                 <FormField
-    control={form.control}
-    name="password"
-    render={({ field }) => (
-        <FormItem className="relative">
-            <FormLabel>Password</FormLabel>
-            <FormControl>
-                <Input type={isTypePassword ? 'password' : 'text'}
-                placeholder="**************" {...field} />
-            </FormControl>
-            <button className='absolute top-1/2 right-2 cursor-pointer' type='button'
-            onClick={() => setIsTypePassword(!isTypePassword)}>
-                {isTypePassword ?
-                    <FaRegEyeSlash />
-                    :
-                    <FaRegEye />
-                }
-            </button>
-            <FormMessage />
-        </FormItem>
-    )}
-/>
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="relative">
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type={isTypePassword ? "password" : "text"}
+                          placeholder="**************"
+                          {...field}
+                        />
+                      </FormControl>
+                      <button
+                        className="absolute top-1/2 right-2 cursor-pointer"
+                        type="button"
+                        onClick={() => setIsTypePassword(!isTypePassword)}
+                      >
+                        {isTypePassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                      </button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              <div>
+              <div className="mb-3">
                 <ButtonLoading
+                  loading={loading}
                   type="submit"
                   text="Login"
-                  loading={loading}
-                  className="w-full cursor-pointer"
+                  className="w-full
+    cursor-pointer"
                 />
+              </div>
+              <div className="text-center">
+                <div className="flex justify-center items-center gap-1">
+                  <p>Don't have account?</p>
+                  <Link href="" className="text-primary underline">
+                    Create account!
+                  </Link>
+                </div>
+                <div className="mt-3">
+                  <Link href="" className="text-primary underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
             </form>
           </Form>
