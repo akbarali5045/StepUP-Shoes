@@ -128,13 +128,12 @@
     @apply font-sans;
   }
 }
-/* globals.css mein add karo */
 
 .bg-brand-gradient {
   background: linear-gradient(
     135deg,
-    /* rgba(245, 126, 172, 0.9) 0%, */
-    /* rgba(246, 103, 98, 0.7) 50%, */
-    rgba(154, 22, 150, 0.95) 100%
+    #4f0343 0%,
+    #7d0c54 50%,
+    #3b0632 100%
   );
 }

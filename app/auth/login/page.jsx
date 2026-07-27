@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
-import Logo from "@/public/assets/images/logo.png";
+import Logo from "@/public/assets/images/stepup.png";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
@@ -31,7 +31,9 @@ const LoginPage = () => {
       email: true,
     })
     .extend({
-      password: z.string().min("3", "Password field is required."),
+     password: z
+  .string()
+  .min(8, "Password must be at least 8 characters.")
     });
 
   const form = useForm({
@@ -45,21 +47,37 @@ const LoginPage = () => {
     console.log(values);
   };
   return (
-    <Card className="w-[400px] bg-fuchsia-300">
+    <Card
+  className="
+    w-full
+    max-w-[420px]
+    rounded-3xl
+    border
+    border-white/40
+    bg-white/95
+    shadow-[0_25px_60px_rgba(0,0,0,0.25)]
+    backdrop-blur-xl
+  "
+>
       <CardContent>
-        <div className="flex justify-center">
-          <Image
-            src={Logo.src}
-            width={Logo.width}
-            height={Logo.height}
-            alt="logo"
-            className="max-w-[150px]"
-          />
-        </div>
+        <div className="mb-4 flex justify-center">
+  <Image
+    src={Logo.src}
+    width={Logo.width}
+    height={Logo.height}
+    alt="Step Up Logo"
+    className="h-auto w-[180px] object-contain"
+  />
+</div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Login Into Account</h1>
-          <p>Login into your account by filling out the form below.</p>
-        </div>
+  <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+     Welcome Back
+  </h1>
+
+  <p className="mt-1.5 text-sm text-gray-500">
+    Step into comfort and continue your shopping journey.
+  </p>
+</div>
         <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
@@ -69,11 +87,14 @@ const LoginPage = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className="mb-1.5 text-sm font-medium text-gray-800">
+  Email
+</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="example@gmail.com"
+                          className="h-12 rounded-xl border-gray-200 bg-white px-4 shadow-sm transition-all focus:border-[#F04438] focus:ring-2 focus:ring-[#F04438]/20"
                           {...field}
                         />
                       </FormControl>
@@ -89,23 +110,72 @@ const LoginPage = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem className="relative">
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type={isTypePassword ? "password" : "text"}
-                          placeholder="**************"
-                          {...field}
-                        />
-                      </FormControl>
-                      <button
-                        className="absolute top-1/2 right-2 cursor-pointer"
-                        type="button"
-                        onClick={() => setIsTypePassword(!isTypePassword)}
-                      >
-                        {isTypePassword ? <FaRegEyeSlash /> : <FaRegEye />}
-                      </button>
-                      <FormMessage />
-                    </FormItem>
+  <div className="mb-1.5 flex items-center justify-between">
+    <FormLabel className="text-sm font-medium text-gray-800">
+      Password
+    </FormLabel>
+
+    <Link
+      href=""
+      className="text-sm text-[#F04438] transition-colors hover:text-[#D9362B] hover:underline"
+    >
+      Forgot password?
+    </Link>
+  </div>
+
+  <FormControl>
+    <Input
+      type={isTypePassword ? "password" : "text"}
+      placeholder="**************"
+      className="
+        h-12
+        rounded-xl
+        border-gray-200
+        bg-white
+        px-4
+        pr-12
+        shadow-sm
+        transition-all
+        focus:border-[#F04438]
+        focus:ring-2
+        focus:ring-[#F04438]/20
+      "
+      {...field}
+    />
+  </FormControl>
+
+  <button
+    type="button"
+    aria-label={
+      isTypePassword ? "Show password" : "Hide password"
+    }
+    className="
+      absolute
+      right-3
+      top-[35px]
+      flex
+      h-8
+      w-8
+      items-center
+      justify-center
+      rounded-md
+      text-gray-500
+      transition-colors
+      hover:bg-gray-100
+      hover:text-gray-800
+      cursor-pointer
+    "
+    onClick={() => setIsTypePassword(!isTypePassword)}
+  >
+    {isTypePassword ? (
+      <FaRegEyeSlash className="h-[17px] w-[17px]" />
+    ) : (
+      <FaRegEye className="h-[17px] w-[17px]" />
+    )}
+  </button>
+
+  <FormMessage />
+</FormItem>
                   )}
                 />
               </div>
@@ -114,23 +184,44 @@ const LoginPage = () => {
                   loading={loading}
                   type="submit"
                   text="Login"
-                  className="w-full
-    cursor-pointer"
+                  className="
+  h-12
+  w-full
+  cursor-pointer
+  rounded-xl
+  bg-[#F04438]
+  font-medium
+  text-white
+  shadow-sm
+  transition-all
+  duration-200
+  hover:-translate-y-[1px]
+  hover:bg-[#D9362B]
+  hover:shadow-lg
+  active:translate-y-0
+"
                 />
               </div>
-              <div className="text-center">
-                <div className="flex justify-center items-center gap-1">
-                  <p>Don't have account?</p>
-                  <Link href={WEBSITE_REGISTER} className="text-primary underline">
-                    Create account!
-                  </Link>
-                </div>
-                <div className="mt-3">
-                  <Link href="" className="text-primary underline">
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
+              <div className="mt-2 text-center text-sm">
+  <div className="flex items-center justify-center gap-1.5">
+    <p className="text-gray-600">
+      Don't have an account?
+    </p>
+
+    <Link
+      href={WEBSITE_REGISTER}
+      className="
+        font-medium
+        text-[#F04438]
+        transition-colors
+        hover:text-[#D9362B]
+        hover:underline
+      "
+    >
+      Create account
+    </Link>
+  </div>
+</div>
             </form>
           </Form>
         </div>
