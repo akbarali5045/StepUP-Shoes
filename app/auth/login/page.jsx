@@ -7,6 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
 import Link from "next/link";
 import { WEBSITE_REGISTER } from "@/routes/WebsiteRoute";
+import axios from "axios";
+import { showToast } from "@/lib/showToast";
+
 import {
   Form,
   FormControl,
@@ -44,8 +47,27 @@ const LoginPage = () => {
     },
   });
   const handleLoginSubmit = async (values) => {
-    console.log(values);
-  };
+  try {
+    setLoading(true);
+
+    const { data: loginResponse } = await axios.post(
+      "/api/auth/login",
+      values
+    );
+
+    if (!loginResponse.success) {
+      throw new Error(loginResponse.message);
+    }
+
+    form.reset();
+    showToast("success", loginResponse.message);
+
+  } catch (error) {
+    showToast("error", error.message);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <Card
   className="

@@ -24,6 +24,7 @@ import { useState } from "react";
 import { FaRegEyeSlash } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
 import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
+import { showToast } from "@/lib/showToast";
 
 const page = () => {
   const [loading, setLoading] = useState(false);
@@ -62,10 +63,10 @@ const page = () => {
         }
 
         form.reset()
-        alert(registerResponse.message)
+        showToast('error', registerResponse.message)
 
     } catch (error) {
-        alert(error.message)
+         showToast('success', registerResponse.message)
     } finally {
         setLoading(false)
     }
