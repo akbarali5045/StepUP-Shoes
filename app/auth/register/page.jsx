@@ -6,6 +6,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
 import Link from "next/link";
+import axios from "axios";
 import {
   Form,
   FormControl,
@@ -26,9 +27,9 @@ import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
 
 const page = () => {
   const [loading, setLoading] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(true);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false);
+    useState(true);
   const formSchema = zSchema
     .pick({
       name: true,
@@ -52,9 +53,23 @@ const page = () => {
       confirmPassword: "",
     },
   });
-  const handleRegisterSubmit = async (values) => {
-    console.log(values);
-  };
+ const handleRegisterSubmit = async (values) => {
+    try {
+        setLoading(true)
+        const { data: registerResponse } = await axios.post('/api/auth/register', values)
+        if (!registerResponse.success) {
+            throw new Error(registerResponse.message)
+        }
+
+        form.reset()
+        alert(registerResponse.message)
+
+    } catch (error) {
+        alert(error.message)
+    } finally {
+        setLoading(false)
+    }
+}
   return (
     <Card
   className="
