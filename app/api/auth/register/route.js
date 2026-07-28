@@ -6,55 +6,81 @@ import { zSchema } from "@/lib/zodSchema";
 import UserModel from "@/models/User.model";
 import { SignJWT } from "jose";
 export async function POST(request) {
-    // try {
-        await connectDB()
-        // validation schema
-        const validationSchema = zSchema.pick({
-            name: true, email: true, password: true
-        })
+  try {
+    await connectDB();
 
-        const payload = await request.json()
+    // validation schema
+    const validationSchema = zSchema.pick({
+      name: true,
+      email: true,
+      password: true,
+    });
 
-        const validatedData = validationSchema.safeParse(payload)
+    const payload = await request.json();
 
-        if (!validatedData.success) {
-            return response(false, 401, 'Invalid or missing input field.',
-            validatedData.error)
-        }
+    const validatedData = validationSchema.safeParse(payload);
 
-        const { name, email, password } = validatedData.data
+    if (!validatedData.success) {
+      return response(
+        false,
+        401,
+        "Invalid or missing input field.",
+        validatedData.error
+      );
+    }
 
+    const { name, email, password } = validatedData.data;
 
-// check already registered user
-    const checkUser = await UserModel.exists({ email })
+    // check already registered user
+    const checkUser = await UserModel.exists({ email });
+
     if (checkUser) {
-        return response(true, 409, 'User already registered.')
+      return response(false, 409, "User already registered.");
     }
 
     // new registration
-
     const NewRegistration = new UserModel({
-        name, email, password
+      name,
+      email,
+      password,
+    });
+
+    await NewRegistration.save();
+
+    // Generate Email Verification Token
+    const secret = new TextEncoder().encode(process.env.SECRET_KEY);
+
+    const token = await new SignJWT({
+      userId: NewRegistration._id,
     })
+      .setIssuedAt()
+      .setExpirationTime("1h")
+      .setProtectedHeader({ alg: "HS256" })
+      .sign(secret);
 
-    await NewRegistration.save()
+    // Send Verification Email
+    const mailResponse = await sendMail(
+      "Email Verification Request - Step Up",
+      email,
+      emailVerificationLink(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/${token}`
+      )
+    );
 
-const secret = new TextEncoder().encode(process.env.SECRET_KEY)
-const token = await new SignJWT({ userId: NewRegistration._id })
-    .setIssuedAt()
-    .setExpirationTime('1h')
-    .setProtectedHeader({ alg: 'HS256' })
-    .sign(secret)
+    console.log("Mail Response:", mailResponse);
 
-    await sendMail('Email Verification request from Developer Akbar Ali',
-email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/
-verify-email/${token}`))
+    if (!mailResponse.success) {
+      return response(false, 500, mailResponse.message);
+    }
 
-return response(true, 200, 'Registration success, Please verify your email address.')
-
-    // } catch (error) {
-    //   return  catchError(error)
-    // }
+    return response(
+      true,
+      200,
+      "Registration successful. Please verify your email address."
+    );
+  } catch (error) {
+    console.error("Register Error:", error);
+    return catchError(error);
   }
-
+}
   
