@@ -51,8 +51,8 @@ export async function POST(request) {
     const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
     const token = await new SignJWT({
-      userId: NewRegistration._id,
-    })
+  userId: NewRegistration._id.toString(),
+})
       .setIssuedAt()
       .setExpirationTime("1h")
       .setProtectedHeader({ alg: "HS256" })
@@ -60,10 +60,10 @@ export async function POST(request) {
 
     // Send Verification Email
     const mailResponse = await sendMail(
-      "Email Verification Request - Step Up",
+      "Welcome to Step Up - Verify Your Email",
       email,
       emailVerificationLink(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/${token}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/auth/verify-email/${token}`
       )
     );
 
