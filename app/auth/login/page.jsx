@@ -26,9 +26,12 @@ import { useState } from "react";
 
 import { FaRegEyeSlash } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
+import OTPVerification from "@/components/Application/OTPVerification";
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [otpVerificationLoading, setOtpVerificationLoading] = useState(false)
   const [isTypePassword, setIsTypePassword] = useState(true);
+  const [otpEmail, setOtpEmail] = useState()
   const formSchema = zSchema
     .pick({
       email: true,
@@ -58,7 +61,7 @@ const LoginPage = () => {
     if (!loginResponse.success) {
       throw new Error(loginResponse.message);
     }
-
+    setOtpEmail(values.email)
     form.reset();
     showToast("success", loginResponse.message);
 
@@ -68,6 +71,30 @@ const LoginPage = () => {
     setLoading(false);
   }
 };
+ 
+const handleOtpVerification= async (values)=>{
+try {
+    setOtpVerificationLoading(true);
+
+    const { data: otpResponse } = await axios.post(
+      "/api/auth/verify-otp",
+      values
+    );
+
+    if (!otpResponse.success) {
+      throw new Error(otpResponse.message);
+    }
+    setOtpEmail('')
+    
+    showToast("success", otpResponse.message);
+
+  } catch (error) {
+    showToast("error", error.message);
+  } finally {
+    setOtpVerificationLoading(false);
+  }
+}
+
   return (
     <Card
   className="
@@ -91,7 +118,10 @@ const LoginPage = () => {
     className="h-auto w-[180px] object-contain"
   />
 </div>
-        <div className="text-center">
+
+{!otpEmail
+    ?
+    <>  <div className="text-center">
   <h1 className="text-3xl font-bold tracking-tight text-gray-900">
      Welcome Back
   </h1>
@@ -246,7 +276,12 @@ const LoginPage = () => {
 </div>
             </form>
           </Form>
-        </div>
+        </div></>
+    :
+    <OTPVerification email={otpEmail} loading={otpVerificationLoading} onSubmit={handleOtpVerification}/>
+}
+
+   
       </CardContent>
     </Card>
   );
