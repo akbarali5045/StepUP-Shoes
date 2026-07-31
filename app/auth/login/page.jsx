@@ -6,7 +6,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { zSchema } from "@/lib/zodSchema";
 import Link from "next/link";
-import { WEBSITE_REGISTER } from "@/routes/WebsiteRoute";
+import { USER_DASHBOARD, WEBSITE_REGISTER, WEBSITE_RESETPASSWORD } from "@/routes/WebsiteRoute";
 import axios from "axios";
 import { showToast } from "@/lib/showToast";
 
@@ -23,23 +23,27 @@ import { useForm } from "react-hook-form";
 import ButtonLoading from "@/components/Application/ButtonLoading";
 import { z } from "zod";
 import { useState } from "react";
-
+import { login } from "@/store/reducer/authReducer";
 import { FaRegEyeSlash } from "react-icons/fa";
 import { FaRegEye } from "react-icons/fa6";
 import OTPVerification from "@/components/Application/OTPVerification";
+import { useDispatch } from "react-redux";
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ADMIN_DASHBOARD } from "@/routes/AdminPanelRoute";
 const LoginPage = () => {
+   const searchParams = useSearchParams()
+    const router = useRouter()
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [otpVerificationLoading, setOtpVerificationLoading] = useState(false)
+  const [otpVerificationLoading, setOtpVerificationLoading] = useState(false);
   const [isTypePassword, setIsTypePassword] = useState(true);
-  const [otpEmail, setOtpEmail] = useState()
+  const [otpEmail, setOtpEmail] = useState();
   const formSchema = zSchema
     .pick({
       email: true,
     })
     .extend({
-     password: z
-  .string()
-  .min(8, "Password must be at least 8 characters.")
+      password: z.string().min(8, "Password must be at least 8 characters."),
     });
 
   const form = useForm({
@@ -50,54 +54,60 @@ const LoginPage = () => {
     },
   });
   const handleLoginSubmit = async (values) => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data: loginResponse } = await axios.post(
-      "/api/auth/login",
-      values
-    );
+      const { data: loginResponse } = await axios.post(
+        "/api/auth/login",
+        values,
+      );
 
-    if (!loginResponse.success) {
-      throw new Error(loginResponse.message);
+      if (!loginResponse.success) {
+        throw new Error(loginResponse.message);
+      }
+      setOtpEmail(values.email);
+      form.reset();
+      showToast("success", loginResponse.message);
+    } catch (error) {
+      showToast("error", error.message);
+    } finally {
+      setLoading(false);
     }
-    setOtpEmail(values.email)
-    form.reset();
-    showToast("success", loginResponse.message);
+  };
 
-  } catch (error) {
-    showToast("error", error.message);
-  } finally {
-    setLoading(false);
-  }
-};
- 
-const handleOtpVerification= async (values)=>{
-try {
-    setOtpVerificationLoading(true);
+  const handleOtpVerification = async (values) => {
+    try {
+      setOtpVerificationLoading(true);
 
-    const { data: otpResponse } = await axios.post(
-      "/api/auth/verify-otp",
-      values
-    );
+      const { data: otpResponse } = await axios.post(
+        "/api/auth/verify-otp",
+        values,
+      );
 
-    if (!otpResponse.success) {
-      throw new Error(otpResponse.message);
-    }
-    setOtpEmail('')
-    
-    showToast("success", otpResponse.message);
+      if (!otpResponse.success) {
+        throw new Error(otpResponse.message);
+      }
+      setOtpEmail("");
 
-  } catch (error) {
-    showToast("error", error.message);
-  } finally {
-    setOtpVerificationLoading(false);
-  }
+      showToast("success", otpResponse.message);
+
+      dispatch(login(otpResponse.data));
+
+      if (searchParams.has('callback')) {
+    router.push(searchParams.get('callback'))
+} else {
+    otpResponse.data.role === 'admin' ? router.push(ADMIN_DASHBOARD) : router.push(USER_DASHBOARD)
 }
+    } catch (error) {
+      showToast("error", error.message);
+    } finally {
+      setOtpVerificationLoading(false);
+    }
+  };
 
   return (
     <Card
-  className="
+      className="
     w-full
     max-w-[420px]
     rounded-3xl
@@ -107,79 +117,80 @@ try {
     shadow-[0_25px_60px_rgba(0,0,0,0.25)]
     backdrop-blur-xl
   "
->
+    >
       <CardContent>
         <div className="mb-4 flex justify-center">
-  <Image
-    src={Logo.src}
-    width={Logo.width}
-    height={Logo.height}
-    alt="Step Up Logo"
-    className="h-auto w-[180px] object-contain"
-  />
-</div>
+          <Image
+            src={Logo.src}
+            width={Logo.width}
+            height={Logo.height}
+            alt="Step Up Logo"
+            className="h-auto w-[180px] object-contain"
+          />
+        </div>
 
-{!otpEmail
-    ?
-    <>  <div className="text-center">
-  <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-     Welcome Back
-  </h1>
+        {!otpEmail ? (
+          <>
+            {" "}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                Welcome Back
+              </h1>
 
-  <p className="mt-1.5 text-sm text-gray-500">
-    Step into comfort and continue your shopping journey.
-  </p>
-</div>
-        <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="mb-1.5 text-sm font-medium text-gray-800">
-  Email
-</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="example@gmail.com"
-                          className="h-12 rounded-xl border-gray-200 bg-white px-4 shadow-sm transition-all focus:border-[#F04438] focus:ring-2 focus:ring-[#F04438]/20"
-                          {...field}
-                        />
-                      </FormControl>
+              <p className="mt-1.5 text-sm text-gray-500">
+                Step into comfort and continue your shopping journey.
+              </p>
+            </div>
+            <div>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
+                  <div className="mb-3">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="mb-1.5 text-sm font-medium text-gray-800">
+                            Email
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="example@gmail.com"
+                              className="h-12 rounded-xl border-gray-200 bg-white px-4 shadow-sm transition-all focus:border-[#F04438] focus:ring-2 focus:ring-[#F04438]/20"
+                              {...field}
+                            />
+                          </FormControl>
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="mb-3">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className="relative">
-  <div className="mb-1.5 flex items-center justify-between">
-    <FormLabel className="text-sm font-medium text-gray-800">
-      Password
-    </FormLabel>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="relative">
+                          <div className="mb-1.5 flex items-center justify-between">
+                            <FormLabel className="text-sm font-medium text-gray-800">
+                              Password
+                            </FormLabel>
 
-    <Link
-      href=""
-      className="text-sm text-[#F04438] transition-colors hover:text-[#D9362B] hover:underline"
-    >
-      Forgot password?
-    </Link>
-  </div>
+                            <Link
+                              href={WEBSITE_RESETPASSWORD}
+                              className="text-sm text-[#F04438] transition-colors hover:text-[#D9362B] hover:underline"
+                            >
+                              Forgot password?
+                            </Link>
+                          </div>
 
-  <FormControl>
-    <Input
-      type={isTypePassword ? "password" : "text"}
-      placeholder="**************"
-      className="
+                          <FormControl>
+                            <Input
+                              type={isTypePassword ? "password" : "text"}
+                              placeholder="**************"
+                              className="
         h-12
         rounded-xl
         border-gray-200
@@ -192,16 +203,16 @@ try {
         focus:ring-2
         focus:ring-[#F04438]/20
       "
-      {...field}
-    />
-  </FormControl>
+                              {...field}
+                            />
+                          </FormControl>
 
-  <button
-    type="button"
-    aria-label={
-      isTypePassword ? "Show password" : "Hide password"
-    }
-    className="
+                          <button
+                            type="button"
+                            aria-label={
+                              isTypePassword ? "Show password" : "Hide password"
+                            }
+                            className="
       absolute
       right-3
       top-[35px]
@@ -217,26 +228,26 @@ try {
       hover:text-gray-800
       cursor-pointer
     "
-    onClick={() => setIsTypePassword(!isTypePassword)}
-  >
-    {isTypePassword ? (
-      <FaRegEyeSlash className="h-[17px] w-[17px]" />
-    ) : (
-      <FaRegEye className="h-[17px] w-[17px]" />
-    )}
-  </button>
+                            onClick={() => setIsTypePassword(!isTypePassword)}
+                          >
+                            {isTypePassword ? (
+                              <FaRegEyeSlash className="h-[17px] w-[17px]" />
+                            ) : (
+                              <FaRegEye className="h-[17px] w-[17px]" />
+                            )}
+                          </button>
 
-  <FormMessage />
-</FormItem>
-                  )}
-                />
-              </div>
-              <div className="mb-3">
-                <ButtonLoading
-                  loading={loading}
-                  type="submit"
-                  text="Login"
-                  className="
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <ButtonLoading
+                      loading={loading}
+                      type="submit"
+                      text="Login"
+                      className="
   h-12
   w-full
   cursor-pointer
@@ -252,36 +263,37 @@ try {
   hover:shadow-lg
   active:translate-y-0
 "
-                />
-              </div>
-              <div className="mt-2 text-center text-sm">
-  <div className="flex items-center justify-center gap-1.5">
-    <p className="text-gray-600">
-      Don't have an account?
-    </p>
+                    />
+                  </div>
+                  <div className="mt-2 text-center text-sm">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <p className="text-gray-600">Don't have an account?</p>
 
-    <Link
-      href={WEBSITE_REGISTER}
-      className="
+                      <Link
+                        href={WEBSITE_REGISTER}
+                        className="
         font-medium
         text-[#F04438]
         transition-colors
         hover:text-[#D9362B]
         hover:underline
       "
-    >
-      Create account
-    </Link>
-  </div>
-</div>
-            </form>
-          </Form>
-        </div></>
-    :
-    <OTPVerification email={otpEmail} loading={otpVerificationLoading} onSubmit={handleOtpVerification}/>
-}
-
-   
+                      >
+                        Create account
+                      </Link>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </>
+        ) : (
+          <OTPVerification
+            email={otpEmail}
+            loading={otpVerificationLoading}
+            onSubmit={handleOtpVerification}
+          />
+        )}
       </CardContent>
     </Card>
   );

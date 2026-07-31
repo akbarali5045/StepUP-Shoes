@@ -63,10 +63,10 @@ const page = () => {
         }
 
         form.reset()
-        showToast('error', registerResponse.message)
+        showToast('success', registerResponse.message)   // ✅ success case
 
     } catch (error) {
-         showToast('success', registerResponse.message)
+         showToast('error', error.message)   // ✅ error/catch case
     } finally {
         setLoading(false)
     }
