@@ -18,9 +18,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html
-      lang="en"
-      className={`${assistantFont.className} antialiased`}
-    >
+  lang="en"
+  suppressHydrationWarning
+  className={`${assistantFont.className} antialiased`}
+>
       <body className="min-h-full flex flex-col">
         <GlobalProvider>
 

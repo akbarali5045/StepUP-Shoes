@@ -1,3 +1,4 @@
+"use client";
 import {
   Sidebar,
   SidebarContent,
@@ -9,7 +10,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,15 +30,12 @@ import {
 } from "@/components/ui/collapsible";
 
 const AppSidebar = () => {
+  const [openIndex, setOpenIndex] = useState(null);
   return (
-    <Sidebar>
+    <Sidebar className="z-50">
       <SidebarHeader className="h-14 border-b p-0">
         <div className="flex h-full items-center justify-between px-4">
-          <Image
-            src={logo}
-            alt="Step Up Logo"
-            className="h-[50px] w-auto"
-          />
+          <Image src={logo} alt="Step Up Logo" className="h-[50px] w-auto" />
 
           <Button type="button" size="icon" variant="ghost">
             <IoMdClose />
@@ -48,20 +46,29 @@ const AppSidebar = () => {
       <SidebarContent>
         <SidebarMenu>
           {adminAppSidebarMenu.map((menu, index) => (
-            <Collapsible key={index} className="group/collapsible">
+            <Collapsible
+              key={index}
+              open={openIndex === index}
+              onOpenChange={() =>
+                setOpenIndex(openIndex === index ? null : index)
+              }
+              className="group/collapsible"
+            >
               <SidebarMenuItem>
                 {menu.submenu ? (
                   <>
                     <SidebarMenuButton
-  render={
-    <CollapsibleTrigger className="w-full" />
-  }
->
-    <menu.icon className="h-4 w-4" />
-    <span>{menu.title}</span>
+                      render={<CollapsibleTrigger className="w-full" />}
+                    >
+                      <menu.icon className="h-4 w-4" />
+                      <span>{menu.title}</span>
 
-    <LuChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-</SidebarMenuButton>
+                      <LuChevronRight
+                        className={`ml-auto transition-transform duration-200 ${
+                          openIndex === index ? "rotate-90" : ""
+                        }`}
+                      />
+                    </SidebarMenuButton>
 
                     <CollapsibleContent>
                       <SidebarMenuSub>
