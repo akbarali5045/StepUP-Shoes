@@ -1,5 +1,19 @@
+"use client";
+
 import React from "react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import { LuChevronRight } from "react-icons/lu";
+import { MdOutlineShoppingBag } from "react-icons/md";
+
+import adminLogo from "@/public/assets/images/stepup.png";
+
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,49 +23,52 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import adminLogo from "@/public/assets/images/stepup.png";
-import { useSelector } from "react-redux";
-
-import { LuChevronRight } from "react-icons/lu";
-import { MdOutlineShoppingBag } from "react-icons/md";
-import Link from "next/link";
-
 const UserDropdown = () => {
   const auth = useSelector((store) => store.authStore.auth);
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Avatar className="cursor-pointer">
-            <AvatarImage src={adminLogo.src} />
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="cursor-pointer rounded-full outline-none"
+        >
+          <Avatar>
+            <AvatarImage src={adminLogo.src} alt="Admin" />
+            <AvatarFallback>
+              {auth?.name?.charAt(0)?.toUpperCase() || "A"}
+            </AvatarFallback>
           </Avatar>
-        }
-      />
+        </button>
+      </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="me-5 w-44">
+      <DropdownMenuContent align="end" className="w-52 me-5">
         <DropdownMenuLabel>
-          <p className="font-semibold">{auth?.name}</p>
+          <p className="font-semibold">
+            {auth?.name || "Admin"}
+          </p>
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          render={
-            <Link href="" className="cursor-pointer" />
-          }
-        >
-          <LuChevronRight />
-          New Product
+        <DropdownMenuItem asChild>
+          <Link
+            href="/admin/products/create"
+            className="flex w-full items-center gap-2"
+          >
+            <LuChevronRight />
+            <span>New Product</span>
+          </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          render={
-            <Link href="" className="cursor-pointer" />
-          }
-        >
-          <MdOutlineShoppingBag />
-          Orders
+        <DropdownMenuItem asChild>
+          <Link
+            href="/admin/orders"
+            className="flex w-full items-center gap-2"
+          >
+            <MdOutlineShoppingBag />
+            <span>Orders</span>
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
