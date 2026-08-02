@@ -267,7 +267,7 @@ const LoginPage = () => {
                   </div>
                   <div className="mt-2 text-center text-sm">
                     <div className="flex items-center justify-center gap-1.5">
-                      <p className="text-gray-600">Don't have an account?</p>
+                      <p className="text-gray-600">Don&apos;t have an account?</p>
 
                       <Link
                         href={WEBSITE_REGISTER}

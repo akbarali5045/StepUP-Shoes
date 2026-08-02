@@ -51,8 +51,8 @@ export async function POST(request) {
     const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
     const token = await new SignJWT({
-  userId: NewRegistration._id.toString(),
-})
+      userId: NewRegistration._id.toString(),
+    })
       .setIssuedAt()
       .setExpirationTime("1h")
       .setProtectedHeader({ alg: "HS256" })
@@ -83,4 +83,3 @@ export async function POST(request) {
     return catchError(error);
   }
 }
-  

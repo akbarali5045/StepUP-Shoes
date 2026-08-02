@@ -17,20 +17,14 @@ const ThemeSwitch = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            className="cursor-pointer"
-          />
-        }
-      >
-        {theme === "dark" ? (
-          <IoMoonOutline className="h-5 w-5" />
-        ) : (
-          <IoSunnyOutline className="h-5 w-5" />
-        )}
+      <DropdownMenuTrigger asChild>
+        <Button type="button" variant="ghost" className="cursor-pointer">
+          {theme === "dark" ? (
+            <IoMoonOutline className="h-5 w-5" />
+          ) : (
+            <IoSunnyOutline className="h-5 w-5" />
+          )}
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-40">

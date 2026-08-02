@@ -2,6 +2,8 @@ import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
 import { zSchema } from "@/lib/zodSchema";
 import UserModel from "@/models/User.model";
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 export async function PUT(request) {
     try {
@@ -18,6 +20,23 @@ export async function PUT(request) {
 
         const { email, password } = validatedData.data
 
+        const cookieStore = await cookies()
+        const resetToken = cookieStore.get("password_reset_token")?.value
+
+        if (!resetToken) {
+            return response(false, 401, "Unauthorized: OTP verification required.")
+        }
+
+        try {
+            const secret = new TextEncoder().encode(process.env.SECRET_KEY)
+            const { payload: tokenPayload } = await jwtVerify(resetToken, secret)
+            if (!tokenPayload.resetAuthorized || tokenPayload.email !== email) {
+                return response(false, 401, "Unauthorized: Invalid reset session.")
+            }
+        } catch (err) {
+            return response(false, 401, "Unauthorized: Invalid or expired reset session.")
+        }
+
         const getUser = await UserModel.findOne({ deletedAt: null, email }).select("+password")
 
         if (!getUser) {
@@ -26,6 +45,8 @@ export async function PUT(request) {
 
         getUser.password = password
         await getUser.save()
+
+        cookieStore.delete("password_reset_token")
 
         return response(true, 200, 'Password update success.')
 

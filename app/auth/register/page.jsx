@@ -26,7 +26,7 @@ import { FaRegEye } from "react-icons/fa6";
 import { WEBSITE_LOGIN } from "@/routes/WebsiteRoute";
 import { showToast } from "@/lib/showToast";
 
-const page = () => {
+const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(true);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -296,4 +296,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default RegisterPage;

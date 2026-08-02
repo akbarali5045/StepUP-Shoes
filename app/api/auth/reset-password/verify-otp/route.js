@@ -19,22 +19,40 @@ export async function POST(request) {
             return response(false, 401, 'Invalid or missing input field.', validatedData.error)
         }
 
-const { email, otp } = validatedData.data
+        const { email, otp } = validatedData.data
 
-const getOtpData = await OTPModel.findOne({ email, otp })
-if (!getOtpData) {
-    return response(false, 404, 'Invalid or expired otp.')
-}
+        const getOtpData = await OTPModel.findOne({ email, otp })
+        if (!getOtpData || new Date() > new Date(getOtpData.expiresAt)) {
+            if (getOtpData) await getOtpData.deleteOne()
+            return response(false, 404, 'Invalid or expired otp.')
+        }
 
-const getUser = await UserModel.findOne({ deletedAt: null, email }).lean()
-if (!getUser) {
-    return response(false, 404, 'User not found.')
-}
+        const getUser = await UserModel.findOne({ deletedAt: null, email }).lean()
+        if (!getUser) {
+            return response(false, 404, 'User not found.')
+        }
 
-// remove otp after validation
-await getOtpData.deleteOne()
+        // remove otp after validation
+        await getOtpData.deleteOne()
 
-return response(true, 200, 'OTP Verified')
+        const secret = new TextEncoder().encode(process.env.SECRET_KEY)
+        const resetToken = await new SignJWT({ email, resetAuthorized: true })
+            .setIssuedAt()
+            .setExpirationTime('10m')
+            .setProtectedHeader({ alg: 'HS256' })
+            .sign(secret)
+
+        const cookieStore = await cookies()
+        cookieStore.set({
+            name: 'password_reset_token',
+            value: resetToken,
+            httpOnly: true,
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        })
+
+        return response(true, 200, 'OTP Verified')
 
     } catch (error) {
         return catchError(error)

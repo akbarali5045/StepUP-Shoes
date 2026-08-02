@@ -1,9 +1,9 @@
 import React from 'react'
 
-const layout = ({children}) => {
+const WebsiteLayout = ({children}) => {
   return (
     <div>{children}</div>
   )
 }
 
-export default layout
+export default WebsiteLayout

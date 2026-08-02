@@ -59,27 +59,25 @@ const AppSidebar = () => {
               <SidebarMenuItem>
                 {menu.submenu ? (
                   <>
-                    <SidebarMenuButton
-                      render={<CollapsibleTrigger className="w-full" />}
-                    >
-                      <menu.icon className="h-4 w-4" />
-                      <span>{menu.title}</span>
+                    <SidebarMenuButton asChild>
+                      <CollapsibleTrigger className="w-full">
+                        <menu.icon className="h-4 w-4" />
+                        <span>{menu.title}</span>
 
-                      <LuChevronRight
-                        className={`ml-auto transition-transform duration-200 ${
-                          openIndex === index ? "rotate-90" : ""
-                        }`}
-                      />
+                        <LuChevronRight
+                          className={`ml-auto transition-transform duration-200 ${
+                            openIndex === index ? "rotate-90" : ""
+                          }`}
+                        />
+                      </CollapsibleTrigger>
                     </SidebarMenuButton>
 
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {menu.submenu.map((sub, i) => (
                           <SidebarMenuSubItem key={i}>
-                            <SidebarMenuSubButton
-                              render={<Link href={sub.url} />}
-                            >
-                              {sub.title}
+                            <SidebarMenuSubButton asChild>
+                              <Link href={sub.url}>{sub.title}</Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -87,9 +85,11 @@ const AppSidebar = () => {
                     </CollapsibleContent>
                   </>
                 ) : (
-                  <SidebarMenuButton render={<Link href={menu.url} />}>
-                    <menu.icon className="h-4 w-4" />
-                    <span>{menu.title}</span>
+                  <SidebarMenuButton asChild>
+                    <Link href={menu.url}>
+                      <menu.icon className="h-4 w-4" />
+                      <span>{menu.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 )}
               </SidebarMenuItem>

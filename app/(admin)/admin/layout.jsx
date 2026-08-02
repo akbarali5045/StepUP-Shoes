@@ -4,7 +4,7 @@ import Topbar from "@/components/Application/Admin/Topbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
 
-const layout = ({ children }) => {
+const AdminLayout = ({ children }) => {
   return (
     <ThemeProvider>
       <SidebarProvider>
@@ -25,4 +25,4 @@ const layout = ({ children }) => {
   );
 };
 
-export default layout;
+export default AdminLayout;

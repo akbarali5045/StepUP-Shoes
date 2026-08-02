@@ -55,11 +55,10 @@ const ResetPassword = () => {
       setOtpEmail(values.email);
 
       showToast("success", otpResponse.message);
-      setIsOtpVerified(true);
     } catch (error) {
       showToast("error", error.message);
     } finally {
-      setemailVerificationLoading(false); // 👈 sirf yahi line change hui hai
+      setemailVerificationLoading(false);
     }
   };
   const handleOtpVerification = async (values) => {
@@ -76,6 +75,7 @@ const ResetPassword = () => {
       }
 
       showToast("success", otpResponse.message);
+      setIsOtpVerified(true);
     } catch (error) {
       showToast("error", error.message);
     } finally {
