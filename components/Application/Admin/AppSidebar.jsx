@@ -9,6 +9,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useState } from "react";
 import Image from "next/image";
@@ -31,13 +32,14 @@ import {
 
 const AppSidebar = () => {
   const [openIndex, setOpenIndex] = useState(null);
+   const { toggleSidebar } = useSidebar();
   return (
     <Sidebar className="z-50">
       <SidebarHeader className="h-14 border-b p-0">
         <div className="flex h-full items-center justify-between px-4">
           <Image src={logo} alt="Step Up Logo" className="h-[50px] w-auto" />
 
-          <Button type="button" size="icon" variant="ghost">
+          <Button onClick={toggleSidebar} type="button" size="icon" variant="ghost" className="md:hidden">
             <IoMdClose />
           </Button>
         </div>
